@@ -7,7 +7,9 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    # arm64 的 macos-14/15 跑机产能紧张，排队 15 分钟就被判「未取得 Runner」；
+    # 这里用 Intel(x64) 的 macos-13，队列短得多。
+    runs-on: macos-13
     timeout-minutes: 30
 
     steps:
