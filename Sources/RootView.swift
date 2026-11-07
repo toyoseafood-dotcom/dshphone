@@ -5,7 +5,7 @@ import WebKit
 
 final class Store: ObservableObject {
     static let key = "serverAddress"
-    static let fallback = "http://100.122.189.102:62210"
+    static let fallback = "https://toyoseafood.com:8444"
 
     @Published var address: String {
         didSet { UserDefaults.standard.set(address, forKey: Self.key) }
@@ -127,7 +127,7 @@ struct ErrorOverlay: View {
             Image(systemName: "wifi.exclamationmark")
                 .font(.system(size: 34))
                 .foregroundColor(.orange)
-            Text("连不上电脑")
+            Text("连不上服务器")
                 .font(.headline)
                 .foregroundColor(.white)
             Text(message)
@@ -160,13 +160,13 @@ struct SettingsSheet: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("电脑地址")) {
-                    TextField("100.122.189.102:62210", text: $text)
+                Section(header: Text("服务器地址")) {
+                    TextField("toyoseafood.com:8444", text: $text)
                         .textInputAutocapitalization(.never)
                         .disableAutocorrection(true)
                         .keyboardType(.URL)
                 }
-                Section(footer: Text("同一 Wi-Fi 可填 192.168.0.113:62210；在外面用 Tailscale 就填 100.x 的地址。端口默认 62210。")) {
+                Section(footer: Text("默认连日本服务器 toyoseafood.com:8444，无需填写 token。改这个地址只在你换了服务器时用。")) {
                     EmptyView()
                 }
             }
