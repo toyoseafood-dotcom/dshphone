@@ -36,9 +36,13 @@ targets:
         CFBundleShortVersionString: "1.0"
         CFBundleVersion: "1"
         UILaunchScreen: {}
+        # 注意：iOS 10+ 起，只要出现 NSAllowsLocalNetworking（或 InWebContent / ForMedia）
+        # 之一，NSAllowsArbitraryLoads 就会被整个忽略。Tailscale 的 100.x IP 不算
+        # "local networking"，所以之前两者并存导致 http 被 ATS 拦死。
+        # 这里只留 InWebContent（WKWebView 专用放行），不再声明 NSAllowsLocalNetworking。
         NSAppTransportSecurity:
+          NSAllowsArbitraryLoadsInWebContent: true
           NSAllowsArbitraryLoads: true
-          NSAllowsLocalNetworking: true
         UIRequiresFullScreen: true
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
