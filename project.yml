@@ -8,8 +8,8 @@ options:
 
 settings:
   base:
-    MARKETING_VERSION: "1.2"
-    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "1.3"
+    CURRENT_PROJECT_VERSION: "4"
     SWIFT_VERSION: "5.0"
 
 schemes:
@@ -33,8 +33,8 @@ targets:
       path: Sources/Info.plist
       properties:
         CFBundleDisplayName: DeepSeek Harness
-        CFBundleShortVersionString: "1.2"
-        CFBundleVersion: "3"
+        CFBundleShortVersionString: "1.3"
+        CFBundleVersion: "4"
         UILaunchScreen: {}
         # 注意：iOS 10+ 起，只要出现 NSAllowsLocalNetworking（或 InWebContent / ForMedia）
         # 之一，NSAllowsArbitraryLoads 就会被整个忽略。Tailscale 的 100.x IP 不算
