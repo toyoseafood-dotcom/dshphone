@@ -17,15 +17,20 @@ struct WebView: UIViewRepresentable {
         config.mediaTypesRequiringUserActionForPlayback = []
         config.websiteDataStore = .default()
 
+        let script = WKUserScript(source: Inject.js, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        config.userContentController.addUserScript(script)
+
         let web = WKWebView(frame: .zero, configuration: config)
         web.navigationDelegate = context.coordinator
         web.uiDelegate = context.coordinator
         web.allowsBackForwardNavigationGestures = true
         web.scrollView.keyboardDismissMode = .interactive
+        web.scrollView.pinchGestureRecognizer?.isEnabled = false
+        web.scrollView.delegate = context.coordinator
         web.isOpaque = false
         web.backgroundColor = .black
         web.scrollView.backgroundColor = .black
-        web.customUserAgent = "DSHPhone/1.0 (iOS)"
+        web.customUserAgent = "DSHPhone/1.3 (iOS)"
 
         context.coordinator.web = web
         context.coordinator.loadedToken = reloadToken
@@ -41,20 +46,28 @@ struct WebView: UIViewRepresentable {
         }
     }
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, UIScrollViewDelegate {
         var parent: WebView
         weak var web: WKWebView?
         var loadedToken = -1
 
         init(_ parent: WebView) { self.parent = parent }
 
-        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-            parent.isLoading = true
-            parent.errorText = nil
+        // 锁死缩放比例
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? { nil }
+
+        func scrollViewDidZoom(_ scrollView: UIScrollView) {
+            if scrollView.zoomScale != 1.0 { scrollView.zoomScale = 1.0 }
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             parent.isLoading = false
+            webView.evaluateJavaScript(Inject.js, completionHandler: nil)
+        }
+
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            parent.isLoading = true
+            parent.errorText = nil
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
