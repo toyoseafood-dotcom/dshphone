@@ -34,6 +34,18 @@ struct RootView: View {
     @State private var showSettings = false
     @State private var errorText: String?
     @State private var isLoading = false
+    @State private var barVisible = true
+    @State private var hideWork: DispatchWorkItem?
+
+    private func revealBar() {
+        withAnimation(.easeOut(duration: 0.15)) { barVisible = true }
+        hideWork?.cancel()
+        let work = DispatchWorkItem {
+            withAnimation(.easeIn(duration: 0.25)) { barVisible = false }
+        }
+        hideWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: work)
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -45,6 +57,16 @@ struct RootView: View {
                     errorText: $errorText
                 )
                 .ignoresSafeArea(edges: .bottom)
+
+                // 顶部一条透明接收区：轻扫就露出页眉两秒
+                Color.clear
+                    .contentShape(Rectangle())
+                    .frame(height: 46)
+                    .gesture(
+                        DragGesture(minimumDistance: 12)
+                            .onChanged { _ in revealBar() }
+                    )
+                    .onTapGesture { revealBar() }
             } else {
                 Color.black.ignoresSafeArea()
             }
@@ -59,14 +81,24 @@ struct RootView: View {
                 }
             }
 
-            TopBar(
-                title: store.url?.host ?? "未设置",
-                loading: isLoading,
-                onReload: { reloadToken += 1 },
-                onSettings: { showSettings = true }
-            )
+            if barVisible {
+                TopBar(
+                    title: store.url?.host ?? "未设置",
+                    loading: isLoading,
+                    onReload: { reloadToken += 1 },
+                    onSettings: { showSettings = true }
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
         }
         .preferredColorScheme(.dark)
+        .onAppear {
+            let work = DispatchWorkItem {
+                withAnimation(.easeIn(duration: 0.25)) { barVisible = false }
+            }
+            hideWork = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: work)
+        }
         .sheet(isPresented: $showSettings) {
             SettingsSheet(store: store) {
                 showSettings = false
